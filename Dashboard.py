@@ -28,9 +28,10 @@ score_options = [
 app.layout = html.Div(
     style={"maxWidth": "1100px", "margin": "0 auto", "padding": "20px"},
     children=[
-        html.H3("Saber 11 Bogotá: Puntaje vs Estrato"),
+        html.H3("Saber 11 Bogotá"),
+        html.H4("Puntaje vs Estrato"),
         html.P(
-            "Explora cómo cambia la distribución de los puntajes según el estrato socioeconómico."
+            "Cómo cambia la distribución de los puntajes según el estrato socioeconómico."
         ),
 
         html.Div(
@@ -55,8 +56,8 @@ app.layout = html.Div(
                         dcc.RadioItems(
                             id="plot-type",
                             options=[
-                                {"label": "Boxplot (recomendado)", "value": "box"},
-                                {"label": "Violin (distribución)", "value": "violin"},
+                                {"label": "Boxplot", "value": "box"},
+                                {"label": "Violin", "value": "violin"},
                             ],
                             value="box",
                             inline=True,
@@ -73,17 +74,18 @@ app.layout = html.Div(
         html.H4("Resumen por estrato"),
         html.Div(id="tabla-resumen", style={"marginTop": "10px"}),
 
+        html.H4("Histograma de densidad de probabilidad segun naturaleza del colegio"),
         html.Div(
             style={"display": "flex", "gap": "20px", "flexWrap": "wrap"},
             children=[
                 html.Div(
                     style={"minWidth": "260px"},
                     children=[
-                        html.Label("Selecciona la naturaleza del colegio:"),
+                        html.Label("Seleccione el puntaje que quiere observar:"),
                         dcc.Dropdown(
-                            id="nat-col",
-                            options=[{"label": n, "value": n} for n in naturalezas],
-                            value=naturalezas[0],
+                            id="score-col2",
+                            options=[{"label": c, "value": c} for c in score_options],
+                            value="punt_global",
                             clearable=False,
                         ),
                     ],
@@ -92,6 +94,17 @@ app.layout = html.Div(
         ),
 
         dcc.Graph(id="scatter-naturaleza"),
+        html.Hr(),
+        html.H4("Puntaje según acceso a internet en el hogar"),
+        html.Label("Selecciona el puntaje que quiere observar:"),
+        dcc.Dropdown(
+            id="score-col3",
+            options=[{"label": c, "value": c} for c in score_options],
+            value="punt_global",
+            clearable=False,
+        ),
+
+        dcc.Graph(id="box-internet"),
     ],
 )
 
@@ -162,12 +175,12 @@ def update_dashboard(score_col, plot_type):
 
 @app.callback(
     Output("scatter-naturaleza", "figure"),
-    Input("score-col", "value")
+    Input("score-col2", "value")
 )
-def update_hist(score_col):
+def update_hist(score_col2):
     fig = px.histogram(
     df,
-    x=score_col,
+    x=score_col2,
     color="cole_naturaleza",
     nbins=40,
     barmode="overlay",
@@ -175,8 +188,30 @@ def update_hist(score_col):
     histnorm="probability density",
 )
     fig.update_layout(template="simple_white")
+
     return fig
 
+@app.callback(
+    Output("box-internet", "figure"),
+    Input("score-col3", "value")
+)
+def update_box_internet(score_col3):
+
+    fig = px.box(
+        df,
+        x="fami_tieneinternet",
+        y=score_col3,
+        color="fami_tieneinternet",
+        labels={
+            "fami_tieneinternet": "¿Tiene internet en el hogar?",
+            score_col3: "Puntaje"
+        },
+        title=f"{score_col3} según acceso a internet",
+        points="outliers"
+    )
+
+    fig.update_layout(template="simple_white")
+    return fig
 
 if __name__ == "__main__":
     app.run(debug=True)
