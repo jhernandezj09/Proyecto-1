@@ -73,7 +73,6 @@ app.layout = html.Div(
         html.H4("Resumen por estrato"),
         html.Div(id="tabla-resumen", style={"marginTop": "10px"}),
 
-        html.H4("Dispersión del puntaje global por naturaleza del colegio"),
         html.Div(
             style={"display": "flex", "gap": "20px", "flexWrap": "wrap"},
             children=[
@@ -163,27 +162,18 @@ def update_dashboard(score_col, plot_type):
 
 @app.callback(
     Output("scatter-naturaleza", "figure"),
-    Input("nat-col", "value"),
+    Input("score-col", "value")
 )
-def update_scatter(naturaleza):
-    dff = df[df["cole_naturaleza"] == naturaleza].copy()
-
-    # Eje X como índice (orden de observación) para dispersión del puntaje global
-    dff = dff.reset_index(drop=True)
-    dff["obs"] = dff.index + 1
-
-    fig = px.scatter(
-        dff,
-        x="obs",
-        y="punt_global",
-        labels={"obs": "Observación", "punt_global": "Puntaje global"},
-        title=f"Puntaje global (dispersión) — {naturaleza}",
-    )
-
-    # Línea del promedio
-    mean_val = dff["punt_global"].mean()
-    fig.add_hline(y=mean_val, line_dash="dash")
-
+def update_hist(score_col):
+    fig = px.histogram(
+    df,
+    x=score_col,
+    color="cole_naturaleza",
+    nbins=40,
+    barmode="overlay",
+    opacity=0.6,
+    histnorm="probability density",
+)
     fig.update_layout(template="simple_white")
     return fig
 
