@@ -74,6 +74,7 @@ app.layout = html.Div(
         html.H4("Resumen por estrato"),
         html.Div(id="tabla-resumen", style={"marginTop": "10px"}),
 
+        html.Hr(),
         html.H4("Histograma de densidad de probabilidad segun naturaleza del colegio"),
         html.Div(
             style={"display": "flex", "gap": "20px", "flexWrap": "wrap"},
@@ -81,12 +82,27 @@ app.layout = html.Div(
                 html.Div(
                     style={"minWidth": "260px"},
                     children=[
-                        html.Label("Seleccione el puntaje que quiere observar:"),
+                        html.Label("Selecciona el puntaje:"),
                         dcc.Dropdown(
                             id="score-col2",
                             options=[{"label": c, "value": c} for c in score_options],
                             value="punt_global",
                             clearable=False,
+                        ),
+                    ],
+                ),
+                html.Div(
+                    style={"minWidth": "260px"},
+                    children=[
+                        html.Label("Tipo de gráfico:"),
+                        dcc.RadioItems(
+                            id="plot-type2",
+                            options=[
+                                {"label": "Histograma de densidad de probabilidad", "value": "prob"},
+                                {"label": "Histograma de observaciones", "value": "obser"},
+                            ],
+                            value="box",
+                            inline=True,
                         ),
                     ],
                 ),
@@ -175,18 +191,34 @@ def update_dashboard(score_col, plot_type):
 
 @app.callback(
     Output("scatter-naturaleza", "figure"),
-    Input("score-col2", "value")
+    Input("score-col2", "value"),
+    Input("plot-type2", "value")
 )
-def update_hist(score_col2):
-    fig = px.histogram(
-    df,
-    x=score_col2,
-    color="cole_naturaleza",
-    nbins=40,
-    barmode="overlay",
-    opacity=0.6,
-    histnorm="probability density",
-)
+def update_hist(score_col2,plot_type2):
+
+    if plot_type2 == "prob":
+        fig = px.histogram(
+        df,
+        x=score_col2,
+        color="cole_naturaleza",
+        nbins=40,
+        barmode="overlay",
+        opacity=0.6,
+        histnorm="probability density",
+        )
+    
+    else:
+        fig = px.histogram(
+        df,
+        x=score_col2,
+        color="cole_naturaleza",
+        nbins=40,
+        barmode="overlay",
+        opacity=0.6,
+        labels={score_col2: "Puntaje", "cole_naturaleza": "Naturaleza"},
+        title=f"Distribución de {score_col2} por naturaleza del colegio",
+        )
+
     fig.update_layout(template="simple_white")
 
     return fig
