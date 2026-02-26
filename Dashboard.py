@@ -141,6 +141,7 @@ def update_dashboard(score_col, plot_type):
             points="outliers",  # muestra outliers
             labels={estrato_col: "Estrato", score_col: score_col},
             title=f"{score_col} por estrato (Boxplot)",
+            color=estrato_col
         )
     else:
         fig = px.violin(
@@ -152,6 +153,7 @@ def update_dashboard(score_col, plot_type):
             points="outliers",
             labels={estrato_col: "Estrato", score_col: score_col},
             title=f"{score_col} por estrato (Violin)",
+            color=estrato_col
         )
 
     fig.update_layout(template="simple_white")
@@ -205,6 +207,8 @@ def update_hist(score_col2,plot_type2):
         barmode="overlay",
         opacity=0.6,
         histnorm="probability density",
+        labels={score_col2: "Puntaje", "cole_naturaleza": "Naturaleza"},
+        title=f"Densidad de probabilidad de {score_col2} por naturaleza del colegio",
         )
     
     else:
