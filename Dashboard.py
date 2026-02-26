@@ -95,7 +95,7 @@ app.layout = html.Div(
 
         dcc.Graph(id="scatter-naturaleza"),
         html.Hr(),
-        html.H4("Puntaje según acceso a internet en el hogar"),
+        html.H4("Puntaje según área de ubicación del colegio"),
         html.Label("Selecciona el puntaje que quiere observar:"),
         dcc.Dropdown(
             id="score-col3",
@@ -104,7 +104,7 @@ app.layout = html.Div(
             clearable=False,
         ),
 
-        dcc.Graph(id="box-internet"),
+        dcc.Graph(id="box-area-colegio"),
     ],
 )
 
@@ -192,21 +192,21 @@ def update_hist(score_col2):
     return fig
 
 @app.callback(
-    Output("box-internet", "figure"),
+    Output("box-area-colegio", "figure"),
     Input("score-col3", "value")
 )
 def update_box_internet(score_col3):
 
     fig = px.box(
         df,
-        x="fami_tieneinternet",
+        x="cole_area_ubicacion",
         y=score_col3,
-        color="fami_tieneinternet",
+        color="cole_area_ubicacion",
         labels={
-            "fami_tieneinternet": "¿Tiene internet en el hogar?",
+            "cole_area_ubicacion": "¿En que area se encuentra el colegio?",
             score_col3: "Puntaje"
         },
-        title=f"{score_col3} según acceso a internet",
+        title=f"{score_col3} según área de ubicación del colegio",
         points="outliers"
     )
 
