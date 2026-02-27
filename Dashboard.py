@@ -28,11 +28,21 @@ score_options = [
 app.layout = html.Div(
     style={"maxWidth": "1100px", "margin": "0 auto", "padding": "20px"},
     children=[
-        html.H3("Saber 11 Bogotá"),
-        html.H4("Puntaje vs Estrato"),
-        html.P(
-            "Cómo cambia la distribución de los puntajes según el estrato socioeconómico."
+        html.H3("Análisis de datos pruebas saber 11 Bogotá"),
+        html.P("En el siguiente tablero, podra evidenciar algunas visualizaciones pertinentes de las pruebas Saber 11" \
+        " en la ciudad de Bogotá. Para esto, usted podra interactuar con los graficos para definir que tipo de" \
+        " informacion quiere visualizar."
         ),
+        html.H4("1. Diagrama de cajas y violín del puntaje segun el estrato socioeconomico"),
+        html.P(
+            "A continuacion, podrá observar cómo cambia la distribución de los" \
+            " puntajes según el estrato socioeconómico de los estudiantes que presentan las pruebas saber 11." \
+            " El objetivo del siguiente gráfico es que pueda ver la diferencia que se presenta entre los puntajes " \
+            "de los diferentes estratos socioeconomicos. Para tal fin, por favor seleccione el puntaje" \
+            " y tipo de gráfico que desea observar."
+        ),
+
+        html.Br(),
 
         html.Div(
             style={"display": "flex", "gap": "20px", "flexWrap": "wrap"},
@@ -73,9 +83,30 @@ app.layout = html.Div(
 
         html.H4("Resumen por estrato"),
         html.Div(id="tabla-resumen", style={"marginTop": "10px"}),
+        html.Br(),
+        html.P(
+            "La gráfica muestra una relación claramente creciente entre el estrato socioeconómico y el puntaje" \
+            " global: a medida que aumenta el estrato, se observa un desplazamiento hacia arriba en la mediana" \
+            " y en la distribución general de los puntajes. Los estratos 1 y 2 presentan las medianas más bajas" \
+            " y mayor concentración en rangos inferiores, mientras que los estratos 4, 5 y 6 exhiben puntajes" \
+            " centrales más altos y una distribución ubicada en niveles superiores. Esto sugiere una asociación" \
+            " positiva entre nivel socioeconómico y desempeño académico en la prueba Saber 11, evidenciando una" \
+            " brecha sistemática entre los estratos más bajos y los más altos. Así mismo, esto se vuelve a" \
+            " observar en la tabla de las estadisticas, donde tanto el promedio como la mediana evidencian los" \
+            " resultados de la gráfica."
+        ),
 
         html.Hr(),
-        html.H4("Histograma de densidad de probabilidad segun naturaleza del colegio"),
+        html.H4("2. Histograma del puntaje según naturaleza del colegio"),
+        html.P(
+            "En esta sección, podra observar un análisis de la prueba saber 11 observando diferencias en el puntaje"
+            " que desee visualizar, dependiendo de la naturaleza del colegio de los estudiantes. Siendo oficial" \
+            " los colegios publicos y no oficial los colegios privados. En esta sección puede escoger el puntaje que quiera" \
+            " y podrá visualizar dos tipos de graficos, un histograma de densidad de probabilidad o un histograma de las" \
+            " observaciones."
+        ),
+
+        html.Br(),
         html.Div(
             style={"display": "flex", "gap": "20px", "flexWrap": "wrap"},
             children=[
@@ -110,9 +141,27 @@ app.layout = html.Div(
         ),
 
         dcc.Graph(id="scatter-naturaleza"),
+        html.Br(),
+        html.P(
+            "El gráfico muestra la distribución de densidad del puntaje global según la naturaleza del colegio"\
+            " (oficial y no oficial). Se observa que la distribución correspondiente a los colegios no oficiales" \
+            " está desplazada hacia la derecha, lo que indica una mayor concentración de estudiantes con puntajes" \
+            " más altos en comparación con los colegios oficiales. Aunque existe superposición entre ambas" \
+            " distribuciones, los colegios oficiales presentan una mayor densidad en rangos medios-bajos," \
+            " mientras que los no oficiales concentran más estudiantes en rangos superiores. Esto sugiere una" \
+            " diferencia sistemática en el desempeño promedio entre ambos tipos de institución."
+        ),
+
         html.Hr(),
-        html.H4("Puntaje según área de ubicación del colegio"),
-        html.Label("Selecciona el puntaje que quiere observar:"),
+        html.H4("3. Diagrama de cajas del puntaje según área de ubicación del colegio"),
+        html.P(
+            "En esta última sección, puede encontrar la visualización de un diagrama de cajas para observar la relación" \
+            " entre el puntaje de las pruebas saber 11 y el área de ubicación del colegio (rural o urbana). Este" \
+            " grafico permitira observar si la ubicación del colegio influye o no en el desempeño de los estudiantes" \
+            " en las pruebas."
+        ),
+        html.Br(),
+        html.Label("Seleccione el puntaje que quiere observar:"),
         dcc.Dropdown(
             id="score-col3",
             options=[{"label": c, "value": c} for c in score_options],
@@ -121,6 +170,16 @@ app.layout = html.Div(
         ),
 
         dcc.Graph(id="box-area-colegio"),
+        html.P(
+            "El gráfico compara la distribución del puntaje según el área de ubicación del colegio"\
+            " (urbano y rural). Se observa que ambos grupos presentan medianas relativamente cercanas, aunque" \
+            " los colegios rurales muestran una mediana ligeramente superior. Sin embargo, los colegios" \
+            " urbanos presentan mayor dispersión y una mayor cantidad de valores atípicos, especialmente en" \
+            " los rangos más bajos y esto se observa en la mayor parte de los puntajes." \
+            " En general, aunque existen diferencias leves en el nivel central, las" \
+            " distribuciones se superponen considerablemente, lo que sugiere que la brecha entre zona urbana" \
+            " y rural es menos marcada que la observada por el estrato socioeconómico o por la naturaleza del colegio."
+        ),
     ],
 )
 
