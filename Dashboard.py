@@ -292,20 +292,26 @@ def update_hist(score_col2,plot_type2):
 )
 def update_box_internet(score_col3):
 
+    # Filtrar valores no deseados
+    df_filtrado = df[
+        ~df["cole_caracter"].isin(["SIN REGISTRO", "NO APLICA"])
+]
+
     fig = px.box(
-        df,
+        df_filtrado,
         x="cole_area_ubicacion",
         y=score_col3,
-        color="cole_area_ubicacion",
+        color="cole_caracter",
         labels={
-            "cole_area_ubicacion": "¿En que area se encuentra el colegio?",
-            score_col3: "Puntaje"
+            "cole_area_ubicacion": "¿En qué área se encuentra el colegio?",
+            score_col3: "Puntaje",
+            "cole_caracter": "Carácter del colegio"
         },
-        title=f"{score_col3} según área de ubicación del colegio",
+        title=f"{score_col3} según área y carácter del colegio",
         points="outliers"
     )
 
-    fig.update_layout(template="simple_white")
+    fig.update_layout(template="simple_white", boxmode="group")
     return fig
 
 if __name__ == "__main__":
