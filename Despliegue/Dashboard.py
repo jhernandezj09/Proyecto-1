@@ -143,23 +143,32 @@ app.layout = html.Div(
 
         dcc.Graph(id="scatter-naturaleza"),
         html.Br(),
-        html.P(
-            "El gráfico muestra la distribución de densidad del puntaje global según la naturaleza del colegio"\
-            " (oficial y no oficial). Se observa que la distribución correspondiente a los colegios no oficiales" \
-            " está desplazada hacia la derecha, lo que indica una mayor concentración de estudiantes con puntajes" \
-            " más altos en comparación con los colegios oficiales. Aunque existe superposición entre ambas" \
-            " distribuciones, los colegios oficiales presentan una mayor densidad en rangos medios-bajos," \
-            " mientras que los no oficiales concentran más estudiantes en rangos superiores. Esto sugiere una" \
-            " diferencia sistemática en el desempeño promedio entre ambos tipos de institución."
-        ),
 
-        html.H4("Tabla de Naturaleza del Colegio y Bilingüismo"),
+        html.H4("2.1. Diagrama de cajas del puntaje según naturaleza del colegio y bilingüismo"),
         html.P(
-            "La siguiente tabla muestra la relación entre la naturaleza del colegio (oficial o no oficial)" \
-            " y si el colegio ofrece programas bilingües."
+            "En esta sección, puede observar un diagrama de cajas que muestra la distribución del puntaje" \
+            " según la naturaleza del colegio (oficial o no oficial) y si ofrece programas bilingües." \
+            " Esto permite identificar si hay diferencias en el desempeño entre colegios con y sin programas bilingües."
         ),
+        html.Br(),
+        dcc.Graph(id="box-naturaleza-bilingue"),
+        html.Br(),
+        html.H4("Resumen por naturaleza y bilingüismo"),
         html.Div(id="tabla-bilingue", style={"marginTop": "10px"}),
         html.Br(),
+        html.P(
+            "Las características institucionales del colegio influyen de manera significativa en los puntajes del ICFES en Bogotá D.C." \
+            " El análisis muestra que los colegios no oficiales presentan, en promedio, puntajes superiores frente a los oficiales," \
+            " evidenciando una distribución desplazada hacia valores más altos y mayores medianas en los diagramas de cajas." \
+            " Adicionalmente, la presencia de programas bilingües se asocia con un mejor desempeño académico, especialmente en los" \
+            " colegios no oficiales, donde se observan los promedios más altos. En contraste, los colegios oficiales sin oferta" \
+            " bilingüe presentan los puntajes más bajos del análisis." \
+            " En conjunto, los resultados sugieren que tanto la naturaleza del colegio como la oferta de bilingüismo están" \
+            " relacionadas con diferencias sistemáticas en el desempeño académico, reflejando posibles brechas en recursos," \
+            " contexto socioeconómico y condiciones institucionales dentro del sistema educativo de la ciudad."
+        ),
+        html.Br(),
+        
 
         html.Hr(),
         html.H4("3. Diagrama de cajas del puntaje según área de ubicación del colegio"),
@@ -352,27 +361,53 @@ def update_box_internet(score_col3):
     )
 
 @app.callback(
+    Output("box-naturaleza-bilingue", "figure"),
     Output("tabla-bilingue", "children"),
-    Input("score-col2", "value")  # usa el dropdown de naturaleza como trigger
+    Input("score-col2", "value")
 )
-def update_tabla_bilingue(_):
-    # Crear tabla cruzada de bilingüe con naturaleza
-    tabla_cruzada = pd.crosstab(
-        df["cole_naturaleza"],
-        df["cole_bilingue"],
-        margins=True,
-        margins_name="Total"
-    ).reset_index()
+def update_bilingue(score_col2):
+    # Filtrar datos sin "SIN REGISTRO"
+    df_filtrado = df[~df["cole_bilingue"].isin(["SIN REGISTRO", "NO APLICA", "no aplica"])]
     
-    # Renombrar la primera columna
-    tabla_cruzada.rename(columns={"cole_naturaleza": "Naturaleza del Colegio"}, inplace=True)
+    # Crear boxplot
+    fig = px.box(
+        df_filtrado,
+        x="cole_naturaleza",
+        y=score_col2,
+        color="cole_bilingue",
+        labels={
+            "cole_naturaleza": "Naturaleza del Colegio",
+            score_col2: "Puntaje",
+            "cole_bilingue": "¿Es Bilingüe?"
+        },
+        title=f"{score_col2} según naturaleza y bilingüismo del colegio",
+        points="outliers"
+    )
     
-    return dash_table.DataTable(
-        columns=[{"name": str(i), "id": str(i)} for i in tabla_cruzada.columns],
-        data=tabla_cruzada.to_dict("records"),
-        style_table={"overflowX": "auto", "marginTop": "20px"},
-        style_cell={"textAlign": "center", "padding": "10px"},
-        style_header={"fontWeight": "bold", "backgroundColor": "#f0f0f0"},
+    fig.update_layout(template="simple_white", boxmode="group")
+    
+    # Crear tabla con resumen
+    summary = (
+        df_filtrado.groupby(["cole_naturaleza", "cole_bilingue"])[score_col2]
+        .agg(["count", "mean", "median"])
+        .reset_index()
+        .sort_values(["cole_naturaleza", "cole_bilingue"])
+    )
+    summary["mean"] = summary["mean"].round(2)
+    summary["median"] = summary["median"].round(2)
+    
+    return fig, dash_table.DataTable(
+        columns=[
+            {"name": "Naturaleza", "id": "cole_naturaleza"},
+            {"name": "¿Es Bilingüe?", "id": "cole_bilingue"},
+            {"name": "N", "id": "count"},
+            {"name": "Promedio", "id": "mean"},
+            {"name": "Mediana", "id": "median"},
+        ],
+        data=summary.to_dict("records"),
+        style_table={"overflowX": "auto"},
+        style_cell={"textAlign": "center"},
+        style_header={"fontWeight": "bold"},
     )
 
 if __name__ == "__main__":
