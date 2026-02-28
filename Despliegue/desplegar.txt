@@ -1,0 +1,137 @@
+GUÍA COMPLETA DE DESPLIEGUE DEL TABLERO EN AWS EC2
+Proyecto 1 – Analítica de Resultados Saber 11
+
+----------------------------------------------------
+1. CREACIÓN DE LA INSTANCIA EC2
+----------------------------------------------------
+
+1. Ingresar a AWS Console.
+2. Ir a EC2 → Launch Instance.
+3. Seleccionar:
+   - Sistema operativo: Ubuntu Server 22.04 LTS
+   - Tipo de instancia: t2.micro
+4. Crear o seleccionar un Key Pair (.pem).
+5. En Security Group habilitar los siguientes puertos:
+
+   - SSH (22) → My IP
+   - HTTP (80) → 0.0.0.0/0
+   - HTTPS (443) → 0.0.0.0/0
+   - Custom TCP (8050) → 0.0.0.0/0
+
+6. Lanzar la instancia.
+7. Verificar que esté en estado “Running”.
+8. Copiar la Public IPv4 address.
+
+----------------------------------------------------
+2. CONEXIÓN A LA INSTANCIA
+----------------------------------------------------
+
+Desde la terminal local:
+
+chmod 400 Proyecto1.pem
+ssh -i Proyecto1.pem ubuntu@PUBLIC_IP
+
+----------------------------------------------------
+3. INSTALACIÓN DE DEPENDENCIAS DEL SISTEMA
+----------------------------------------------------
+
+sudo apt update
+sudo apt install git python3-venv python3-full -y
+
+----------------------------------------------------
+4. CLONAR EL REPOSITORIO
+----------------------------------------------------
+
+cd ~
+git clone https://github.com/jhernandezj09/Proyecto-1.git
+cd Proyecto-1
+
+----------------------------------------------------
+5. CREACIÓN DEL ENTORNO VIRTUAL
+----------------------------------------------------
+
+python3 -m venv venv
+source venv/bin/activate
+
+Actualizar pip:
+
+python -m pip install --upgrade pip
+
+Instalar dependencias:
+
+pip install dash pandas numpy plotly gunicorn
+
+----------------------------------------------------
+6. CONFIGURACIÓN DEL TABLERO
+----------------------------------------------------
+
+Verificar que en Dashboard.py exista:
+
+server = app.server
+
+Y que el servidor corra con:
+
+if __name__ == "__main__":
+    app.run_server(host="0.0.0.0", port=8050, debug=False)
+
+----------------------------------------------------
+7. PRUEBA MANUAL CON GUNICORN
+----------------------------------------------------
+
+gunicorn -w 2 -b 0.0.0.0:8050 Dashboard:server
+
+Abrir en navegador:
+
+http://PUBLIC_IP:8050
+
+Si funciona, detener con Ctrl + C.
+
+----------------------------------------------------
+8. CONFIGURACIÓN DE EJECUCIÓN PERMANENTE (SYSTEMD)
+----------------------------------------------------
+
+Crear archivo de servicio:
+
+sudo nano /etc/systemd/system/dash.service
+
+Contenido:
+
+[Unit]
+Description=Dash App Service
+After=network.target
+
+[Service]
+User=ubuntu
+WorkingDirectory=/home/ubuntu/Proyecto-1
+Environment="PATH=/home/ubuntu/Proyecto-1/venv/bin"
+ExecStart=/home/ubuntu/Proyecto-1/venv/bin/gunicorn -w 2 -b 0.0.0.0:8050 Dashboard:server
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
+
+Guardar y ejecutar:
+
+sudo systemctl daemon-reload
+sudo systemctl enable dash
+sudo systemctl start dash
+
+Verificar estado:
+
+sudo systemctl status dash
+
+Debe mostrar:
+Active: active (running)
+
+----------------------------------------------------
+9. URL FINAL DEL TABLERO
+----------------------------------------------------
+
+http://PUBLIC_IP:8050
+
+
+----------------------------------------------------
+FIN DEL PROCESO
+----------------------------------------------------
+
+El tablero queda desplegado en AWS EC2, accesible públicamente.
