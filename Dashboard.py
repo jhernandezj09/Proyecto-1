@@ -153,6 +153,14 @@ app.layout = html.Div(
             " diferencia sistemática en el desempeño promedio entre ambos tipos de institución."
         ),
 
+        html.H4("Tabla de Naturaleza del Colegio y Bilingüismo"),
+        html.P(
+            "La siguiente tabla muestra la relación entre la naturaleza del colegio (oficial o no oficial)" \
+            " y si el colegio ofrece programas bilingües."
+        ),
+        html.Div(id="tabla-bilingue", style={"marginTop": "10px"}),
+        html.Br(),
+
         html.Hr(),
         html.H4("3. Diagrama de cajas del puntaje según área de ubicación del colegio"),
         html.P(
@@ -341,6 +349,30 @@ def update_box_internet(score_col3):
         style_table={"overflowX": "auto"},
         style_cell={"textAlign": "center"},
         style_header={"fontWeight": "bold"},
+    )
+
+@app.callback(
+    Output("tabla-bilingue", "children"),
+    Input("score-col2", "value")  # usa el dropdown de naturaleza como trigger
+)
+def update_tabla_bilingue(_):
+    # Crear tabla cruzada de bilingüe con naturaleza
+    tabla_cruzada = pd.crosstab(
+        df["cole_naturaleza"],
+        df["cole_bilingue"],
+        margins=True,
+        margins_name="Total"
+    ).reset_index()
+    
+    # Renombrar la primera columna
+    tabla_cruzada.rename(columns={"cole_naturaleza": "Naturaleza del Colegio"}, inplace=True)
+    
+    return dash_table.DataTable(
+        columns=[{"name": str(i), "id": str(i)} for i in tabla_cruzada.columns],
+        data=tabla_cruzada.to_dict("records"),
+        style_table={"overflowX": "auto", "marginTop": "20px"},
+        style_cell={"textAlign": "center", "padding": "10px"},
+        style_header={"fontWeight": "bold", "backgroundColor": "#f0f0f0"},
     )
 
 if __name__ == "__main__":
