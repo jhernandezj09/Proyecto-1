@@ -1,5 +1,6 @@
 import pandas as pd
 import dash
+from dash import dash_table
 from dash import dcc  # dash core components
 from dash import html # dash html components 
 from dash.dependencies import Input, Output
@@ -170,6 +171,10 @@ app.layout = html.Div(
         ),
 
         dcc.Graph(id="box-area-colegio"),
+        html.Br(),
+        html.H4("Resumen por area y caracteristica del colegio"),
+        html.Div(id="tabla-resumen2", style={"marginTop": "10px"}),
+        html.Br(),
         html.P(
             "El gráfico compara la distribución del puntaje según el área de ubicación del colegio"\
             " (urbano y rural). Se observa que ambos grupos presentan medianas relativamente cercanas, aunque" \
@@ -288,13 +293,12 @@ def update_hist(score_col2,plot_type2):
 
 @app.callback(
     Output("box-area-colegio", "figure"),
+    Output("tabla-resumen2", "children"),
     Input("score-col3", "value")
 )
 def update_box_internet(score_col3):
-
-    # Filtrar valores no deseados
     df_filtrado = df[
-        ~df["cole_caracter"].isin(["SIN REGISTRO", "NO APLICA"])
+        ~df["cole_caracter"].isin(["SIN REGISTRO", "NO APLICA","no aplica"])
 ]
 
     fig = px.box(
@@ -312,7 +316,29 @@ def update_box_internet(score_col3):
     )
 
     fig.update_layout(template="simple_white", boxmode="group")
-    return fig
+
+    summary = (
+        df_filtrado.groupby(["cole_area_ubicacion", "cole_caracter"])[score_col3]
+        .agg(["count", "mean", "median"])
+        .reset_index()
+        .sort_values(["cole_area_ubicacion", "cole_caracter"])
+    )
+    summary["mean"] = summary["mean"].round(2)
+    summary["median"] = summary["median"].round(2)
+
+    return fig,dash_table.DataTable(
+        columns=[
+            {"name": "Área", "id": "cole_area_ubicacion"},
+            {"name": "Carácter", "id": "cole_caracter"},
+            {"name": "N", "id": "count"},
+            {"name": "Promedio", "id": "mean"},
+            {"name": "Mediana", "id": "median"},
+        ],
+        data=summary.to_dict("records"),
+        style_table={"overflowX": "auto"},
+        style_cell={"textAlign": "center"},
+        style_header={"fontWeight": "bold"},
+    )
 
 if __name__ == "__main__":
     app.run(debug=True)
