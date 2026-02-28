@@ -157,9 +157,10 @@ app.layout = html.Div(
         html.H4("3. Diagrama de cajas del puntaje según área de ubicación del colegio"),
         html.P(
             "En esta última sección, puede encontrar la visualización de un diagrama de cajas para observar la relación" \
-            " entre el puntaje de las pruebas saber 11 y el área de ubicación del colegio (rural o urbana). Este" \
-            " grafico permitira observar si la ubicación del colegio influye o no en el desempeño de los estudiantes" \
-            " en las pruebas."
+            " entre el puntaje de las pruebas saber 11 y el área de ubicación del colegio (rural o urbana), separado por" \
+            " la caracteristica del colegio (academico, tecnico/academico o tecnico). Este" \
+            " grafico permitira observar si la ubicación del colegio y su caracteristica influye o no en" \
+            " el desempeño de los estudiantes en las pruebas."
         ),
         html.Br(),
         html.Label("Seleccione el puntaje que quiere observar:"),
@@ -176,14 +177,16 @@ app.layout = html.Div(
         html.Div(id="tabla-resumen2", style={"marginTop": "10px"}),
         html.Br(),
         html.P(
-            "El gráfico compara la distribución del puntaje según el área de ubicación del colegio"\
-            " (urbano y rural). Se observa que ambos grupos presentan medianas relativamente cercanas, aunque" \
-            " los colegios rurales muestran una mediana ligeramente superior. Sin embargo, los colegios" \
-            " urbanos presentan mayor dispersión y una mayor cantidad de valores atípicos, especialmente en" \
-            " los rangos más bajos y esto se observa en la mayor parte de los puntajes." \
-            " En general, aunque existen diferencias leves en el nivel central, las" \
-            " distribuciones se superponen considerablemente, lo que sugiere que la brecha entre zona urbana" \
-            " y rural es menos marcada que la observada por el estrato socioeconómico o por la naturaleza del colegio."
+            "La gráfica y la tabla muestran que las diferencias en el puntaje global entre área urbana" \
+            " y rural no son tan marcadas como las observadas por estrato o naturaleza del colegio, aunque" \
+            " sí se identifican variaciones según el carácter institucional. En zona rural, los colegios académicos" \
+            " presentan el promedio más alto (287.75), superando incluso a los urbanos académicos (274.54)," \
+            " mientras que los técnico/académico rurales registran los valores más bajos. En el área urbana," \
+            " los colegios técnicos alcanzan ligeramente el mayor promedio (276.69), pero con medianas muy cercanas" \
+            " entre los distintos caracteres, lo que evidencia una fuerte superposición en las distribuciones." \
+            " En conjunto, los resultados sugieren que el carácter del colegio influye levemente en el desempeño," \
+            " pero la brecha entre urbano y rural es relativamente moderada y no muestra diferencias estructurales" \
+            " tan amplias como en otras variables analizadas."
         ),
     ],
 )
